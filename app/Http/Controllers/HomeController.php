@@ -25,7 +25,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $user = User::join('mahasiswa as m','m.id_user','=','users.id')->where('users.id',Auth::user()->id)->first();
+        $user = User::join('mahasiswa as m','m.id_user','=','users.id')
+            ->leftJoin('pembayaran as p','p.id_mahasiswa','=','m.id_user')
+            ->where('users.id',Auth::user()->id)->first();
         $dataView = [
             'user' =>$user
         ];

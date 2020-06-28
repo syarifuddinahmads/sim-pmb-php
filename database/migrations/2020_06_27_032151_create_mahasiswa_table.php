@@ -24,6 +24,7 @@ class CreateMahasiswaTable extends Migration
             $table->string('ijazah')->nullable();
             $table->string('kk')->nullable();
             $table->integer('status')->default('0');
+            $table->timestamp('registered_at');
             $table->timestamps();
         });
     }

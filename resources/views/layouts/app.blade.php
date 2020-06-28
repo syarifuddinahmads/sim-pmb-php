@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>Sistem Informasi Akademik</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -27,7 +27,7 @@
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
+                    Sistem Informasi Akademik
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -80,6 +80,20 @@
                         @include('layouts.sidebar')
                     </div>
                     <div class="col-md-9">
+                        @if(Auth::user()->user_type == 2)
+                            @if($user->user_type == 2 && $user->status == 0)
+                                <div class="alert alert-danger" role="alert">
+                                    Data diri anda belum lengkap, <a href="{{url('lengkapi-data')}}">Klik disini untuk melengkapi !</a>
+                                </div>
+                            @endif
+
+                            @if($user->user_type == 2 && $user->status_pembayaran == null)
+                                <div class="alert alert-info" role="alert">
+                                    Data diri anda sudah lengkap, <a href="{{url('upload-pembayaran')}}">Lakukan pembayaran !</a>
+                                </div>
+                            @endif
+                        @endif
+
                         @yield('content')
                     </div>
                 </div>

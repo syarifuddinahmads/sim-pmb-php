@@ -15,8 +15,41 @@ class MahasiswaController extends Controller
         $this->middleware('auth');
     }
 
+    public function listMahasiswa(Request $request){
+
+        $mahasiswa= User::join('mahasiswa as m','m.id_user','=','users.id')
+            ->leftJoin('jurusan as j','j.kode_jurusan','=','m.jurusan')
+            ->orderBy('m.registered_at','desc')
+            ->where('users.user_type',2)->paginate(10);
+        $dataView = [
+            'mahasiswa'=>$mahasiswa
+        ];
+        return view('mahasiswa.listMahasiswa',$dataView);
+    }
+
+    public function detailMahasiswa($id){
+        $user = User::join('mahasiswa as m','m.id_user','=','users.id')->leftJoin('jurusan as j','j.kode_jurusan','=','m.jurusan')->where('m.id_user',$id)->first();
+        $dataView = [
+            'user' =>$user
+        ];
+
+        return view('mahasiswa.detailMahasiswa',$dataView);
+    }
+
+    public function dataDiri(){
+        $user = User::join('mahasiswa as m','m.id_user','=','users.id')
+            ->join('jurusan as j','j.kode_jurusan','=','m.jurusan')
+            ->leftJoin('pembayaran as p','p.id_mahasiswa','=','m.id_user')
+            ->where('users.id',Auth::user()->id)->first();
+        $dataView = [
+            'user' =>$user
+        ];
+        return view('mahasiswa.dataDiriMahasiswa',$dataView);
+    }
+
     public function lengkapiDataDiri(){
-        $user = User::join('mahasiswa as m','m.id_user','=','users.id')->where('users.id',Auth::user()->id)->first();
+        $user = User::join('mahasiswa as m','m.id_user','=','users.id')
+            ->where('users.id',Auth::user()->id)->first();
         $jurusan = Jurusan::all();
         $dataView = [
             'user' =>$user,
@@ -31,10 +64,10 @@ class MahasiswaController extends Controller
         $tmp_file_kk = $_FILES['kk']['tmp_name'];
         $tmp_file_skl = $_FILES['skl']['tmp_name'];
 
-        $nmfile = "images/foto/" . $_FILES['foto']['name'];
-        $nmfile = "images/ijazah/" . $_FILES['ijazah']['name'];
-        $nmfile = "images/kk/" . $_FILES['kk']['name'];
-        $nmfile = "images/skl/" . $_FILES['skl']['name'];
+        $nmfilefoto = "images/foto/" . $_FILES['foto']['name'];
+        $nmfileijazah = "images/ijazah/" . $_FILES['ijazah']['name'];
+        $nmfilekk = "images/kk/" . $_FILES['kk']['name'];
+        $nmfileskl = "images/skl/" . $_FILES['skl']['name'];
 
         $namafilefoto = $_FILES['foto']['name'];
         $namafileijazah = $_FILES['ijazah']['name'];
@@ -47,11 +80,22 @@ class MahasiswaController extends Controller
         copy($tmp_file_skl, "images/skl/$namafileskl");
 
         $data =[
-
+            'foto' => $nmfilefoto,
+            'kk' => $nmfilekk,
+            'skl' => $nmfileskl,
+            'ijazah' => $nmfileijazah,
+            'alamat'=> $request->alamat,
+            'jurusan' => $request->jurusan,
+            'status'=>2
         ];
 
         Mahasiswa::where('id_user',$request->id)->update($data);
 
         return redirect('home');
+    }
+
+    public function verifikasiMahasiswa(Request $request){
+        Mahasiswa::where('id_user',$request->id_user)->update(['status'=>1]);
+        return redirect('mahasiswa');
     }
 }
